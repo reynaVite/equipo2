@@ -1,0 +1,84 @@
+.barNav{
+    background-color: #00314A;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+}
+.barNav-logo{
+    display: flex;
+    align-items: center;
+}
+.barNav-logo img{
+    width: 15vh;
+}
+.barNav-menu{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 0.2rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.barNav-menu-element{
+    padding: 0px 10px;
+    font-size: 15px;
+    letter-spacing: 0.14vi;
+    text-decoration: none;
+
+}
+
+.barNav-text{
+    color: #ffffff;
+    font-weight: 600;
+    padding: 8px 0px;
+    transition: all;
+    transition-duration: 200ms;
+    border-bottom: 1px solid #ffffff00;
+    text-decoration: none;
+}
+.barNav-text:hover{
+    cursor: pointer;
+    border-bottom: 3px solid rgb(255, 255, 255);
+}
+
+.barNav-menu-element .submenu {
+    display: none;
+    position: absolute;
+    background-color: #333; /* Asegúrate de que el fondo no sea transparente */
+}
+
+/* Mostrar los elementos hijos cuando se pasa el cursor sobre el elemento padre */
+.barNav-menu-element:hover .submenu {
+    display: block;
+}
+
+/* Estilos para el submenú */
+.barNav-menu-element .submenu {
+    display: none;
+    position: absolute;
+    background-color: #00314A; /* Color de fondo del submenú */
+    padding: 15px; /* Espacio interior del submenú */
+    border-radius: 5px; /* Bordes redondeados del submenú */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Sombra alrededor del submenú */
+}
+
+/* Estilos para los elementos del submenú */
+.barNav-menu-element .submenu a {
+    color: #ffffff; /* Color del texto */
+    padding: 10px 16px; /* Espacio interior de cada elemento */
+    text-decoration: none; /* Sin subrayado en los enlaces */
+    display: block; /* Cada elemento en una nueva línea */
+}
+
+/* Cambiar el color de fondo al pasar el cursor sobre los elementos del submenú */
+.barNav-menu-element .submenu a:hover {
+    background-color: #6699CC;
+}
+
+/* Mostrar el submenú cuando se pasa el cursor sobre el elemento padre */
+.barNav-menu-element:hover .submenu {
+    display: block;
+}
