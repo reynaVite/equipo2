@@ -31,7 +31,6 @@ export function Solicitud() {
   const obtenerValoresPlantel = async () => {
     try {
       const response = await axios.get("http://localhost:3000/plantel");
-      console.log("Datos del plantel:", response.data);
       setPlantelOptions(response.data);
     } catch (error) {
       console.error("Error al obtener valores del plantel:", error);
@@ -40,7 +39,6 @@ export function Solicitud() {
   const obtenerValoresSesion = async () => {
     try {
       const response = await axios.get("http://localhost:3000/sesiones");
-      console.log("Datos de sesiones:", response.data);
       setSesionOptions(response.data);
     } catch (error) {
       console.error("Error al obtener valores de sesiones:", error);
@@ -52,7 +50,7 @@ export function Solicitud() {
       const response = await axios.get(
         "http://localhost:3000/preguntas-secretas"
       );
-      console.log("Datos de preguntas secretas:", response.data);
+   
       setPreguntasSecretasOptions(response.data);
     } catch (error) {
       console.error("Error al obtener valores de preguntas secretas:", error);
