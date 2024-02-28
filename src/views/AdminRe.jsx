@@ -51,7 +51,7 @@ export function AdminRe() {
         });
     };
     const plantelTextos = {
-        1: 'Zona 012',
+        1: 'Zona 12',
         2: 'Benito Juárez',
         3: 'Héroe Agustín'
     };
