@@ -205,7 +205,7 @@ useEffect(() => {
               ]}
             >
               <ReCAPTCHA
-                sitekey="6Le3EWYpAAAAAI-na3xyGWaHgIYom7wycSNXA5qs"
+                sitekey="6LdZ4IMpAAAAADeX3M_zwV4kduNHhAhd7Ad6xUEx" 
                 onChange={onChange}/>
             </Form.Item>
 
