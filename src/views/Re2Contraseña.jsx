@@ -9,14 +9,14 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Form, Input, Button, message, Progress } from "antd";
 import { ScrollToTop } from "../components/ScrollToTop";
+import CryptoJS from 'crypto-js'; // Importa CryptoJS
 
 export function Re2Contraseña() {
-  const [formValues, setFormValues] = useState({});
+  const [formValues, setFormValues] = useState({ correo: '', token: '' });
   const handleFormValuesChange = (changedValues, allValues) => {
     setFormValues(allValues);
   };
   const [form] = Form.useForm();
-
   const [token, setToken] = useState("");
   const [tokenValido, setTokenValido] = useState(false);
 
@@ -29,17 +29,49 @@ export function Re2Contraseña() {
   const [tokenGenerado, setTokenGenerado] = useState(null);
   // Función para manejar la generación del token
 
-
-  const handleGenerarToken = async () => {
+  const handleContinuar = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/generar-token-y-enviar-correo", { curp });
-      setToken(response.data.token);
-      message.success("Token generado y enviado por correo");
+      const { correo, token } = formValues;
+    
+
+      // Realizar la solicitud al servidor para verificar el token
+      const response = await axios.post("http://localhost:3000/verificar-codigo", {
+        curp,
+        token,
+      });
+      // Manejar la respuesta del servidor
+      console.log("Respuesta del servidor:", response.data);
+      if (response.data.valid) {
+        message.success("Código válido. Procede con el cambio de contraseña.");
+        setShowPasswordUpdate(true);
+        // Aquí puedes realizar cualquier acción adicional después de verificar el token
+      } else {
+        message.error("Código no válido o ha caducado.");
+      }
     } catch (error) {
-      message.error("Error al generar el token. Por favor, inténtelo de nuevo.");
+      console.error("Error al verificar el código de recuperación:", error);
+      message.error("Error al verificar el código de recuperación. Por favor, inténtelo de nuevo.");
     }
   };
 
+  const [generatingCode, setGeneratingCode] = useState(false); // Estado para controlar si se está generando el código
+  const handleGenerarToken = async () => {
+    try {
+      setGeneratingCode(true); // Establecer el estado como verdadero al iniciar la generación del código
+      const response = await axios.post("http://localhost:3000/generar-token-y-enviar-correo", { curp });
+      setToken(response.data.token);
+      message.success("Código generado y enviado por correo");
+    } catch (error) {
+      message.error("Error al generar el código. Por favor, inténtelo de nuevo.");
+    } finally {
+      setGeneratingCode(false); // Establecer el estado como falso al finalizar la generación del código, independientemente del resultado
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
   const [userName, setUserName] = useState(null);
   const [pregunta, setPregunta] = useState(null);
   const [tipoPregunta, setTipoPregunta] = useState(null);
@@ -48,7 +80,6 @@ export function Re2Contraseña() {
   const [key, setKey] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const [preguntasSecretasOptions, setPreguntasSecretasOptions] = useState([]);
   const [tipoRecuperacion, setTipoRecuperacion] = useState(null);
   const [decryptedPassword, setDecryptedPassword] = useState(null);
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
@@ -123,8 +154,6 @@ export function Re2Contraseña() {
     calculatePasswordStrength(password);
   };
 
-
-
   const hasMinimumLength = (value) => value.length <= 12;
   const hasUpperCase = (value) => /[A-Z]/.test(value);
   const hasLowerCase = (value) => /[a-z]/.test(value);
@@ -149,12 +178,10 @@ export function Re2Contraseña() {
       const response = await axios.get(
         `http://localhost:3000/obtener-nombre/${curp}`
       );
-      console.log("Datos del usuario:", response.data);
+
       if (response.data.nombre) {
         const { nombre, aPaterno, aMaterno } = response.data;
         setUserName(`${nombre} ${aPaterno} ${aMaterno}`);
-      } else {
-        console.error("Error al obtener el nombre del usuario.");
       }
     } catch (error) {
       console.error("Error al obtener el nombre del usuario:", error);
@@ -166,7 +193,6 @@ export function Re2Contraseña() {
       const response = await axios.get(
         `http://localhost:3000/obtener-pregunta/${curp}`
       );
-      console.log("Datos del usuario:", response.data);
       if (response.data.pregunta) {
         const { pregunta } = response.data;
         setPregunta(`${pregunta}`);
@@ -183,11 +209,9 @@ export function Re2Contraseña() {
       const response = await axios.get(
         `http://localhost:3000/obtener-tipo-pregunta/${pregunta}`
       );
-      console.log("Tipo de pregunta obtenido:", response.data);
       if (response.data.tipo_pregunta) {
         const { tipo_pregunta } = response.data;
         setTipoPregunta(`${tipo_pregunta}`);
-        //setCurpUsuario(curp);
       }
     } catch (error) {
       console.error("Error al obtener el tipo de pregunta:", error);
@@ -199,7 +223,6 @@ export function Re2Contraseña() {
       const response = await axios.get(
         `http://localhost:3000/obtener-correo/${curp}`
       );
-      console.log("Datos del usuario:", response.data);
       if (response.data.correo) {
         const { correo } = response.data;
         setCorreo(`${correo}`);
@@ -216,31 +239,6 @@ export function Re2Contraseña() {
   const handleRecuperacionChange = (value) => {
     setTipoRecuperacion(value);
   };
-
-
-
-
-  const handleContinuar = async () => {
-    try {
-      // Realizar la solicitud al servidor para verificar el código
-      const response = await axios.post("http://localhost:3000/verificar-codigo", {
-        curp,
-        codigo, // Utiliza directamente el estado 'codigo' en lugar de 'formValues.codigo'
-      });
-      // Manejar la respuesta del servidor
-      if (response.data.valid) {
-        message.success("Código válido. Procede con el cambio de contraseña.");
-        // Aquí puedes realizar cualquier acción adicional después de verificar el código
-      } else {
-        message.error("Código no válido o ha caducado.");
-      }
-    } catch (error) {
-      console.error("Error al verificar el código de recuperación:", error);
-      message.error("Error al verificar el código de recuperación. Por favor, inténtelo de nuevo.");
-    }
-  };
-
-  
 
   const onFinishh = async (values) => {
     try {
@@ -283,10 +281,10 @@ export function Re2Contraseña() {
       message.error("Error en la solicitud de recuperación de contraseña.");
     }
   };
+  
 
   const onFinishActualizarContraseña = async (values) => {
     try {
-      console.log("", values);
       const response = await axios.post(
         "http://localhost:3000/actualizar-contrasena",
         {
@@ -296,7 +294,7 @@ export function Re2Contraseña() {
         }
       );
 
-      console.log("", response.data);
+      
       if (response.data.success) {
         message.success("Contraseña actualizada exitosamente");
         navigate("/Login");
@@ -379,30 +377,35 @@ export function Re2Contraseña() {
                   <Button type="primary" onClick={handleGenerarToken}>
                     Generar código
                   </Button>
+
+                  {generatingCode && <p>Generando código, por favor espere...</p>} {/* Mostrar el texto de espera si se está generando el código */}
+
+
                 </Form.Item>
                 <Contenido conTit={"Código de recuperación."} />
                 <Form.Item
-  name="codigo"
-  rules={[
-    {
-      required: true,
-      message: (
-        <Notificacion
-          noti={"Ingrese el código de recuperación"}
-        />
-      ),
-    }
-  ]}
->
-  <Input
-    prefix={<UserOutlined />}
-    placeholder="Ingrese el código de recuperación"
-  />
-</Form.Item>
-
-
+                  name="token"
+                  rules={[
+                    {
+                      required: true,
+                      message: (
+                        <Notificacion
+                          noti={"Ingrese el código de recuperación"}
+                        />
+                      ),
+                    }
+                  ]}
+                >
+                  <Input
+                    prefix={<UserOutlined />}
+                    placeholder="Ingrese el token de recuperación"
+                    name="token"
+                    value={formValues.token}
+                    onChange={handleChange}
+                  />
+                </Form.Item>
                 <Form.Item>
-                  <Button type="primary" onClick={handleContinuar} disabled={!formValues.codigo}>
+                  <Button type="primary" onClick={handleContinuar} disabled={!formValues.token}>
                     Continuar
                   </Button>
                 </Form.Item>

@@ -17,6 +17,7 @@ export function Login() {
 
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({});
+  const [buttonBlocked, setButtonBlocked] = useState(false);
 
   // Función para manejar cambios en los valores del formulario
   const handleFormValuesChange = (changedValues, allValues) => {
@@ -63,19 +64,18 @@ useEffect(() => {
 
   const onFinish = async (values) => {
     try {
-      console.log("Datos de inicio de sesión enviados al backend:", values);
       const response = await axios.post("http://localhost:3000/login", {
         curp: values.curp,
         contrasena: values.contrasena,
       });
-
+  
       if (response.data.success) {
         console.log("Inicio de sesión exitoso");
         message.success("Inicio de sesión exitoso");
         localStorage.setItem("userRole", response.data.role);
         const userRole = response.data.role;
         setUserRole(userRole);
-
+  
         // Redirigir a la ruta correspondiente según el rol
         if (userRole === 1) {
           navigate("/");
@@ -86,32 +86,31 @@ useEffect(() => {
         } else {
           navigate("/"); // Redirige a la ruta predeterminada si el rol no coincide con ninguno de los casos anteriores
         }
-      } else {
-        console.log(
-          "Inicio de sesión fallido:", response.data.message || "Credenciales incorrectas"
-        );
+      }  else {
+        // Inicio de sesión fallido
         message.error(response.data.message || "Credenciales incorrectas");
-        setFailedAttempts(failedAttempts + 1);
-        if (failedAttempts >= 2) {
-          const currentTime = Date.now();
-          setTimeLeft(currentTime);
-          setIsButtonDisabled(true);
-          updateMessageText();
-          const interval = setInterval(updateMessageText, 1000);
-          setTimeout(() => {
-            setIsButtonDisabled(false);
-            setFailedAttempts(0);
-            setMessageText("");
-            clearInterval(interval);
-          }, 60000); // 1 minutos en milisegundos
+        const updatedFailedAttempts = failedAttempts + 1;
+        setFailedAttempts(updatedFailedAttempts);
+  
+        // Si hay 3 intentos fallidos, actualizar estado_cuenta a 2
+        if (updatedFailedAttempts === 3) {
+          try {
+            message.error("Cuenta bloqueada.");
+            await axios.post("http://localhost:3000/updateEstadoCuenta", {
+              curp: values.curp,
+            });
+            setButtonBlocked(true); // Bloquear el botón
+          } catch (error) {
+            console.error("Error al actualizar estado_cuenta:", error);
+          }
         }
       }
+      
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
-      message.error("Error al iniciar sesión. Por favor, inténtalo de nuevo.");
+      message.error("Inicio de sesión fallido: Usuario no encontrado.");
     }
   };
-
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
     message.error("Por favor, completa todos los campos.");
@@ -213,12 +212,18 @@ useEffect(() => {
             {messageText && (
               <p style={{ color: "red", textAlign: "center" }}>{messageText}</p>
             )}
+ 
+{buttonBlocked && (
+  <div style={{ color: 'red', marginTop: '10px' }}>
+    Su cuenta ha sido bloqueada. Revise su correo para instrucciones de recuperación.
+  </div>
+)}
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" disabled={!formValues.curp || !formValues.contrasena || !formValues.recaptcha}>
-                Ingresar
-              </Button>
-            </Form.Item>
+<Form.Item>
+  <Button type="primary" htmlType="submit" disabled={!formValues.curp || !formValues.contrasena || !formValues.recaptcha || buttonBlocked}>
+    Ingresar
+  </Button>
+</Form.Item>
 
           </Form>
         </div>

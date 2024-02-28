@@ -8,7 +8,6 @@ export const routesByRole = {
   ],
   "1": [
     { name: "Inicio", path: "/" },
-    { name: "Registro", path: "/Registro" },
     { name: "Usuarios", path: "/AdminRe" },
     { name: "Historial", path: "/AdminRe2" },
     { name: "Solicitudes", path: "/AdminSol" },

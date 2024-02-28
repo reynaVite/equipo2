@@ -1,6 +1,6 @@
 import "../css/Login.css";
 import AES from 'crypto-js/aes';
-import Utf8 from 'crypto-js/enc-utf8';
+import CryptoJS from 'crypto-js'; // Importa CryptoJS
 import { Link } from 'react-router-dom';
 import { Form, Input, Button, Select, message, Checkbox, Progress } from 'antd';
 import React, { useEffect, useState } from "react";
@@ -14,7 +14,8 @@ import axios from "axios";
 import { CSPMetaTag } from "../components/CSPMetaTag";
 
 const { Option } = Select;
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  
 export function RegistroF() {
   const [plantelOptions, setPlantelOptions] = useState([]);
   const [sesionOptions, setSesionOptions] = useState([]);
@@ -23,6 +24,9 @@ export function RegistroF() {
   const [checked, setChecked] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [curp, setCurp] = useState(""); // Estado para almacenar la CURP
+
+
+ 
 
   const [showFirstForm, setShowFirstForm] = useState(true);
   const [showSecondForm, setShowSecondForm] = useState(false);
@@ -122,7 +126,6 @@ export function RegistroF() {
       const response = await axios.get(
         "http://localhost:3000/preguntas-secretas"
       );
-      console.log("Datos de preguntas secretas:", response.data);
       setPreguntasSecretasOptions(response.data);
     } catch (error) {
       console.error("Error al obtener valores de preguntas secretas:", error);
@@ -174,36 +177,29 @@ export function RegistroF() {
       <Contenido conTit={"Por favor, completa todos los campos."} />
     );
   };
+  
 
   const onFinish1 = async (values) => {
     try {
+  // Realizar una solicitud al servidor para obtener la clave de cifrado
+  
       const dataToInsert = {
-        telefono: values.telefono,
         pregunta: values.pregunta,
         respuesta: values.respuesta,
         contrasena: values.contrasena,
         curp: curp, // Utiliza la CURP almacenada en el estado como ID
       };
-      // Verificar si el número de teléfono ya existe en la base de datos
-      const telefonoExists = await axios.post('http://localhost:3000/verificar-telefono', { telefono: values.telefono });
-      if (telefonoExists.data.exists) {
-        // Mostrar mensaje de error si el teléfono ya existe
-        message.error('El número de teléfono ya se encuentra registrado');
-      } else if  (telefonoExists.data.exists) {
-       // Mostrar mensaje de error si el teléfono ya existe
-       message.error('El número de teléfono ya se encuentra registrado');
-      } 
-      else {
-
+    
       const response = await axios.post('http://localhost:3000/insertar-dato2', dataToInsert);
       message.success('Registro exitoso');
       navigate('/Login');
-      }
+      
     } catch (error) {
       console.error('Error al insertar datos en la base de datos:', error);
       message.error('Error al realizar el registro. Por favor, inténtalo de nuevo.');
     }
   };
+  
 
   const onFinishFailed1 = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -291,38 +287,7 @@ export function RegistroF() {
               onFinishFailed={onFinishFailed1}
               onValuesChange={handleFormValuesChange1}
             >
-              <Contenido conTit={"Teléfono:"} />
-              <Form.Item
-                name="telefono"
-                rules={[
-                  {
-                    required: true,
-                    message: (
-                      <Notificacion
-                        noti={
-                          "Ingrese el número de teléfono del personal a registrar"
-                        }
-                      />
-                    ),
-                  },
-                  {
-                    pattern: /^[0-9]{10}$/,
-                    message: (
-                      <Notificacion
-                        noti={
-                          "El número de teléfono debe contener exactamente 10 números"
-                        }
-                      />
-                    ),
-                  },
-                ]}
-              >
-                <Input
-                  prefix={<PhoneOutlined />}
-                  placeholder="Ejemplo: 7711334455"
-                />
-              </Form.Item>
-
+           
               <Contenido conTit={"Pregunta secreta:"} />
               <Form.Item
                 name="pregunta"
@@ -477,7 +442,7 @@ export function RegistroF() {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" disabled={!checked || !formValues.telefono || !formValues.pregunta || !formValues.respuesta || !formValues.contra || !formValues.terms}>
+                <Button type="primary" htmlType="submit" disabled={!checked || !formValues.pregunta || !formValues.respuesta || !formValues.contra || !formValues.terms}>
                   Registrar
                 </Button>
               </Form.Item>

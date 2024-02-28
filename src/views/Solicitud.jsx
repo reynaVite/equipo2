@@ -12,6 +12,7 @@ import { Subtitulo, Notificacion, Contenido } from "../components/Titulos";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CSPMetaTag } from "../components/CSPMetaTag";
+import CryptoJS from 'crypto-js';
 
 const { Option } = Select;
 
@@ -75,6 +76,7 @@ export function Solicitud() {
 
   const onFinish = async (values) => {
     try {
+   
       const dataToInsert = {
         curp: values.curp,
         plantel: values.plantel,
@@ -84,6 +86,7 @@ export function Solicitud() {
         aMaterno: values.aMaterno,
         correo: values.correo
       };
+
   
       // Verificar si la CURP ya existe en la base de datos (primera verificación)
       const curpExistsInSoli = await axios.post('http://localhost:3000/verificar-curpSoli', { curp: values.curp });
