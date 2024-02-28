@@ -64,7 +64,8 @@ useEffect(() => {
 
   const onFinish = async (values) => {
     try {
-      const response = await axios.post("http://localhost:3000/login", {
+      const response = await axios.post("https://012zona.vercel.app/login", {
+     
         curp: values.curp,
         contrasena: values.contrasena,
       });
