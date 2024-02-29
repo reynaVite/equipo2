@@ -44,7 +44,8 @@ app.use((req, res, next) => {
 });
 
 
-app.get('/', async (req, res) => {
+
+app.get('/conexionBaseDatos', async (req, res) => {
   try {
     const connection = await req.mysqlPool.getConnection();
     console.log('Conexión exitosa a la base de datos');
@@ -55,7 +56,6 @@ app.get('/', async (req, res) => {
     res.status(500).send('Error al conectar a la base de datos');
   }
 });
-
 
 
 
