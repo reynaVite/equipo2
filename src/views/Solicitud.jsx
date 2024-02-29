@@ -38,7 +38,7 @@ export function Solicitud() {
   };
   const obtenerValoresSesion = async () => {
     try {
-      const response = await axios.get("https://012zona.vercel.app/sesiones");
+      const response = await axios.get("/api/sesiones");
       setSesionOptions(response.data);
     } catch (error) {
       console.error("Error al obtener valores de sesiones:", error);
