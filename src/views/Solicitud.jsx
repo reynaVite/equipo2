@@ -30,7 +30,7 @@ export function Solicitud() {
 
   const obtenerValoresPlantel = async () => {
     try {
-      const response = await axios.get("https://012zona.vercel.app/plantel");
+      const response = await axios.get("/api/plantel");
       setPlantelOptions(response.data);
     } catch (error) {
       console.error("Error al obtener valores del plantel:", error);
