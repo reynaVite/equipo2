@@ -1,5 +1,9 @@
 {
   "functions": {
-    "api/plantel": "src/server/server.js"
+    "api": {
+      "plantel": {
+        "handler": "src/server/server.js"
+      }
+    }
   }
 }
